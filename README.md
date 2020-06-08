@@ -7,7 +7,7 @@ Everyone has it's hysterical origin.
 ### [Makefile_Brief](/blog-2020/makefile_brief.md)
 - 2020-07-01
 
-- Recording some brief notes about how to comprehend makefile and write it, what the difference between makefile and shell script.
+- Recording some brief notes about how to comprehend makefile and write it, what's the difference between makefile and shell script.
 
 ### [Linux Shell Script Brief](/blog-2020/linux_shell_script.md) 
 - 2020-06-01
