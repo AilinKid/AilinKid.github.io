@@ -54,7 +54,7 @@ Linux 并没有特殊的命令来只看局部变量，但是可以 set 命令来
 创建 shell 脚本时，必须在文件的第一行指定要使用的 shell 类型，并以注释符号（#）开头。
 
 ```shell script
-first_line   #!/bin/bash 
+line:1   #!/bin/bash 
 ```
 
 shell 脚本使用的命令必须是内建命令，或者是外部命令，这意味着你的二进制文件所在的 path 必须要在全局变量 $PATH 中。
