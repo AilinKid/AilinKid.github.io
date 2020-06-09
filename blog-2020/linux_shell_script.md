@@ -176,10 +176,106 @@ awk '{if($1 > 20){print $1}}'  # awk 中甚至可以使用结构化语法来处�
 awk '{print tolower($1)}'      # awk 内嵌入许多内建函数（区别 shell 函数），在 awk 命令中只能使用 awk 能识别函数或者变量，想 sed，ls 这些是 shell 的命令，无法使用！
 ```
 
-关于 sed 的多行操作、模式引用、模式空间、分支跳转等高级用法，这里不再展开，详情可以查看附录中书籍
-关于 awk 更多的函数介绍，自定义函数，变量，结构化语法，这里不再展开，详情可以查看附录中的书籍
+关于 sed 的多行操作、模式引用、模式空间、分支跳转等高级用法，这里不再展开，详情可以查看附录中书籍。
+关于 awk 更多的函数介绍，自定义函数，变量，结构化语法，这里不再展开，详情可以查看附录中的书籍。
 
 ### shell 操作数据库
+
+shell 上操作 MySQL 和 TiDB，比较常见的通过 mysql client 命令进入到数据库交互模式之前，然后输入用户命令，等待结果并返回。但是这种结果是无法提取到交互创建之外的 shell 环境中的，并且这中基于交互式的 SQL 命令窗口无法在 shell 中使用自动化脚本来操作。
+
+同样是外部的 mysql 命令，要想避免进入交互是 SQL 窗口，可以使用 -e 参数，将 SQL 作为 mysql 命令的一部分，这样就可以直接在 shell 窗口部分接受数据。这点是有很多好处的，比如可以直接重定向到 sed，awk 来处理 SQL 的结果集合：
+
+```
+mysql -uroot -P4000 -e 'select * from test.t' | awk '{if ($1="Tom"){print $2}}'  # 在结果集中处理第一列为 Tom 的行，并打印其第二列（类似 SQL 算子中的 filter 和 projection）。
+```
+
+但是，由于 -e 参数只能附带一个字符串的内的 SQL，所以不是很方便，使用 << 可以将输入重定向到具有交互式窗口的应用中。<< 在 bash 文档中称为 “here documents” 是一种特殊的重定向模式，用来将输出重定向到由该命令打开的交互式 shell（比如 python，mysql）中。
+
+```
+mysql -uroot -P4000 <<EOF   # 需要使用 EOF 标示需要重定向的文本开始和结束的位置
+show tables;
+select * from test.t;
+select * from test.t1;
+EOF | sed -n '/Tom/p'       # 只打印带有 Tom 行的结果集输出
+```
+
+### 附录
+
+shell 脚本细节比较多，在写 sed & awk 中时，需要注意不要在其 commands 范围内引入 shell 脚本用的语法习惯，变量，函数和相关命令。本文介绍的仅仅是 shell,sed,awk 的简单日常使用部分，更多的高级用法需要大家参考《Linux命令行和shell脚本编程大全》，在日常工作中需要多读多写，这样再需要 shell 或者感觉重复工作的时候会比较自然的联想自动化 shell 脚本的解决方式。
+
+以下是一个比较例子，查找一个 commit hash 所在的 tag，在 oncall 中会比较用的多，人为查找估计会比较耗时：
+
+```shell script
+#!/bin/bash
+
+# This shell script will help you to locate where the git tag is when given a commit hash.
+# Run it in correct git branch and git directory.
+# Pass the COMMIT_HASH in outter shell as parameter.
+
+if [ -z $1 ]
+then
+ echo "You should pass the git hash in"
+else
+ echo "find the git tag where the <"$1"> is in."
+fi
+
+function HandleTags
+{
+ for tag in $(git tag)
+ do
+  GetTagHash "git show $tag"
+  echo "$tag $hash"
+ done
+}
+
+# The return value of function only can be numeric.
+# So here we use global variable to receive commit hash string.
+function GetTagHash
+{
+  hash=$(eval "$1" | sed -n -e '/^commit /p' | awk '{print $2}')
+}
+
+
+# Find all the git tag out as input.
+# For every tag find it's commit hash.
+hash=""
+# store the standard descriptor.
+exec 3>&1
+# redirect 1
+exec 1>tag_hash_map.txt
+HandleTags
+# restore the standard descriptor to 1.
+exec 1>&3
+# destory the descriptor 3.
+exec 3>&-
+
+# list all the git log out
+# Streaming scan the git log hash with record recent git tag info.
+OLDIFS=IFS
+IFS=$'\n'
+tag="hasn't been released"
+for line in $(git log --pretty=oneline)
+do
+ # update tag state firstly if it has.
+ left_hash=${line%% *}
+ temp_tag=`awk '{ if ( var == $2 ){ print $1 }}' var=$left_hash tag_hash_map.txt`
+ # compare target hash and git log hash
+ # the blank here shouldn't be eliminated, otherwise it's a assginment.
+ # the blank in [ and ] is also necessary.
+ # use ${#tag} to get the str length of tag.
+ if [ ${#temp_tag} -ne 0 ]
+ then tag=$temp_tag
+ fi
+ # judge the every hash in git log and $1.
+ # if equal, the tag is which tag it is in.
+ if [ $left_hash == $1 ]
+ then break
+ fi
+done
+IFS=OLDIFS
+rm tag_hash_map.txt
+echo "The commit hash <"$1"> is in tag ["$tag"]."
+```
 
 
 
