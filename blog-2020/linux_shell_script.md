@@ -35,6 +35,7 @@ shell 包含一组内部命令（builtin cmd），用这些命令可以完成诸
     - 17 STOP 无条件停止，但是不终止
     - 18 TSTP 停止或暂停，但继续在后台运行
     - 19 CONT 在 STOP 或 TSTP 之后恢复运行
+- ctrl+c 会发送 SIGINT 信号，ctrl+z 会发送一个 sigtstp 信号，你可以在脚本中使用 trap 可以捕获信号。如：trap commands sig
 - kill 命令会默认向程序发 term 命令，kill 也可以直接指定信号类型，-s 参数可以指定信号类型或者信号号码，也支持直接使用类似 -9/-kill 来只指定信号。
 - df 显示总体磁盘使用情况，du 可以显示具体的文件夹磁盘使用情况。
 - grep 的反向搜索功能，grep -v \[pattern] file, pattern 可以使用正则。
@@ -109,7 +110,44 @@ else
 fi
 ```
 
-test 命令：由于 if 命令只能是被 0-255 的状态退出码，退出状态码之外的条件需要使用 test 命令或者方括号 [] 来检测
+test 命令：由于 if 命令只能是被 0-255 的状态退出码，退出状态码之外的条件需要使用 test 命令或者方括号 [] 来检测。简单来说 [] 可以放普通的条件表达式，条件不满足组，test 命令会帮你返回非 0 状态码，反之亦然。
+```shell script
+if [ condition ]   # 注意`[`之后，`]`之前的空格，才能被正确识别为 test 条件表达式
+then               # condition 通常有数值比较，字符串比较，文件比较
+    commands
+fi
+
+# 示例
+if [ 5 -gt 4 ]
+if [ "aa" < "bb"]     # `<` 只能用于字符串比较
+if [ -f $file_name]
+```
+
+for 命令：遍历的一种方式，一般常用对 list 变量进行遍历，也可以对命令输出进行遍历。
+```shell script
+for one in $(cat $file_name)  # 变量替换，命令输出暂存一个变量，$temp 就会显示 cat 的所有输出
+do
+  commands
+done 
+
+my_list = "ha he hi"          # 直接用 my_list 也可以，默认空格分割，可以改动 IFS 调节默认分割符
+
+for (( i = 0; i < n; i++ ))   # c 风格的 for 也可以
+do
+  commands
+done
+```
+
+使用外部参数，$# 代表运行脚本时命令行参数个数，$1, $2... 可以分别引用对应值，$* 将所有参数看成一个字符串，而 $@ 将所有参数看成一个 list 变量。
+
+shell 函数向 C 语言一样，需要定义在前，使用在后，定义函数的方式有两种：
+```shell script
+function name{
+}
+
+name(){
+}
+```
 
 
 
