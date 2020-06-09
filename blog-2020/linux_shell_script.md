@@ -150,8 +150,38 @@ name(){
 }
 ```
 
-
-
-
 在编写完成 shell.sh 之后，需要给予文件可执行权限，才能被正确执行（chmod u+x shell.sh）。
+
+### awk & sed
+
+awk 和 sed 是 linux 中处理数据常见的工具，两者都是基于 readline 流式处理的（区别 vim 的全局打开），awk 更加聚焦列上的操作，sed 则更加聚焦行上的操作。awk 和 sed 不会对原有的数据进行修改，在读处理的过程中进行内存副本操作之后会输出到其他的地方 STDOUT 或者重定向。
+
+```
+sed options program file       # 此为基本的操作模式
+sed 's/a/b' file_name          # s 是 substitute 命令，会将 line 中的数据的模式 a 替换称模式 b
+sed 'address s/a/b' file       # address 可以指定特定行, num,num 可以指定行数区间，$ 代表尾部
+sed '/pattern/s/a/b' file      # 也可以加正则过滤
+sed '2,3d' file                # d 是 delete，表是删除动作
+sed '1i\new line' file         # i 是 insert，表示在第一行之前插入新行“new line”。注意`\`。
+sed '/cat/a\append line' file  # a 是 append，表示在匹配的cat的行后添加一列“append line”。注意`\`。
+sed '/hello/c\new line' file   # c 是 change，表示将匹配的hello行修改为新行“new line”。注意`\`。
+```
+
+```
+awk options program file
+awk '{print "the second field is", $2}' # 对于一行中的不同列（默认以空格分割），输出第 2 列，注意这里 $2 （类似命令行参数引用方式）放到字符串的引号中是无法 eval 的，但是 shell 可以。
+awk 'BEGIN{print "start"}{print "doing", $1}END{print "end"}'     # 可以在流式数据进来做一个动作 {}，中间处理是一个动作 {}，处理完之后是一个动作 {}。
+awk '/pattern/{}'              # awk 支持 extended 级别的正则语法，sed 只能支持一般的正则
+awk '{if($1 > 20){print $1}}'  # awk 中甚至可以使用结构化语法来处理逻辑，sed 则不行，更多结构语法请参考附录
+awk '{print tolower($1)}'      # awk 内嵌入许多内建函数（区别 shell 函数），在 awk 命令中只能使用 awk 能识别函数或者变量，想 sed，ls 这些是 shell 的命令，无法使用！
+```
+
+关于 sed 的多行操作、模式引用、模式空间、分支跳转等高级用法，这里不再展开，详情可以查看附录中书籍
+关于 awk 更多的函数介绍，自定义函数，变量，结构化语法，这里不再展开，详情可以查看附录中的书籍
+
+### shell 操作数据库
+
+
+
+
 
