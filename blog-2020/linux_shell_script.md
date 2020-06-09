@@ -53,7 +53,7 @@ Linux 并没有特殊的命令来只看局部变量，但是可以 set 命令来
 ### 构建 shell 脚本
 创建 shell 脚本时，必须在文件的第一行指定要使用的 shell 类型，并以注释符号（#）开头。
 
-```shell script
+```
 line:1   #!/bin/bash 
 ```
 
@@ -61,7 +61,7 @@ shell 脚本使用的命令必须是内建命令，或者是外部命令，这�
 
 shell 脚本中使用全局变量，可以使用 $var 或者 ${var} 来 eval 变量的值。这种 eval 效果即使在字符串中，也能正确的 eval，而不是识别为字符串的一部分。
 
-```shell script
+```
 echo $HOME, ${HOME}
 ehco "hahah $HOME"
 ``` 
