@@ -205,7 +205,7 @@ shell 脚本细节比较多，在写 sed & awk 中时，需要注意不要在其
 
 以下是一个比较例子，查找一个 commit hash 所在的 tag，在 oncall 中会比较用的多，人为查找估计会比较耗时：
 
-```shell script
+```shell
 #!/bin/bash
 
 # This shell script will help you to locate where the git tag is when given a commit hash.
