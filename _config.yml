@@ -5,7 +5,7 @@ header-img: img/bg/bg_index.jpg
 email: jsksxs360@163.com
 description: ""
 keyword: ""
-url: "https://ailinkid.github.io"                          # your host, for absolute URL
+url: "https://AilinKid.github.io"                          # your host, for absolute URL
 baseurl: "/AilinKid.github.io"                             # for example, '/blog' if your blog hosted on 'host/blog'
 
 # SNS settings
@@ -44,7 +44,7 @@ ba_track_id: 07529a93af5fa9f808261a1318c3aba4
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "专注IT，乐于分享。"
-sidebar-avatar: /xs-huxblog/img/avatar-xs.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /AilinKid.github.io/img/avatar-xs.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # Featured Tags
 featured-tags: true                     # whether or not using Feature-Tags
